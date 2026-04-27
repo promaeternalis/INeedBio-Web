@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>INeedPOSN — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--bg:#050505;--s:#0d0d0d;--s2:#141414;--s3:#1c1c1c;--b:rgba(255,255,255,.07);--b2:rgba(255,255,255,.13);--t:#f0f0f0;--ts:#999;--tt:#555;--gold:#ffd60a;--bio:#30d158;--chem:#0a84ff;--com:#bf5af2;--warm:#ff9f0a;--red:#ff453a;}
+    body{background:var(--bg);color:var(--t);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh;}
+    .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+    .login-box{background:var(--s);border:1px solid var(--b2);border-radius:24px;padding:48px 44px;width:100%;max-width:400px;text-align:center;}
+    .login-logo{font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:6px;}
+    .login-logo span{color:var(--gold);}
+    .login-sub{font-size:.78rem;color:var(--ts);margin-bottom:32px;}
+    .lf{margin-bottom:14px;text-align:left;}
+    .lf label{font-size:.72rem;font-weight:600;color:var(--ts);letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:6px;}
+    .lf input{width:100%;padding:11px 14px;background:#161616;border:1px solid var(--b2);border-radius:10px;color:var(--t);font-size:.9rem;font-family:'DM Sans',sans-serif;outline:none;}
+    .btn-login{width:100%;padding:13px;background:var(--gold);color:#000;border:none;border-radius:12px;font-size:.9rem;font-weight:700;cursor:pointer;margin-top:8px;}
+    .login-err{font-size:.75rem;color:var(--red);margin-top:10px;display:none;}
+    .login-err.show{display:block;}
+    .app{display:none;min-height:100vh;flex-direction:column;}
+    .app.on{display:flex;}
+    .topbar{height:56px;background:var(--s);border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:50;}
+    .tb-logo{font-family:'Playfair Display',serif;font-size:1.1rem;}
+    .tb-logo span{color:var(--gold);}
+    .top-r{display:flex;align-items:center;gap:14px;}
+    .ttag{padding:4px 10px;background:rgba(255,214,10,.1);border:1px solid rgba(255,214,10,.25);border-radius:40px;font-size:.68rem;font-weight:600;color:var(--gold);}
+    .btn-logout{padding:6px 14px;background:none;border:1px solid var(--b2);border-radius:8px;color:var(--ts);font-size:.75rem;cursor:pointer;}
+    .btn-logout:hover{border-color:var(--red);color:var(--red);}
+    .tab-bar{background:var(--s);border-bottom:1px solid var(--b);padding:0 28px;display:flex;gap:0;overflow-x:auto;}
+    .tab-btn{padding:14px 20px;font-size:.8rem;font-weight:500;color:var(--ts);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+    .tab-btn.on{color:var(--gold);border-bottom-color:var(--gold);}
+    .tab-content{display:none;}
+    .tab-content.on{display:block;}
+    .content{padding:24px 28px;flex:1;max-width:1400px;margin:0 auto;width:100%;}
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:24px;}
+    .sc{background:var(--s);border:1px solid var(--b);border-radius:14px;padding:18px 20px;}
+    .sl{font-size:.66rem;font-weight:600;color:var(--tt);letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px;}
+    .sv{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;}
+    .ssub{font-size:.68rem;color:var(--ts);margin-top:3px;}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
+    .sw{position:relative;flex:1;min-width:180px;}
+    .sw input{width:100%;padding:8px 12px 8px 34px;background:var(--s);border:1px solid var(--b2);border-radius:9px;color:var(--t);font-size:.8rem;font-family:'DM Sans',sans-serif;outline:none;}
+    .si{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:.8rem;color:var(--tt);}
+    .fb{padding:8px 13px;background:var(--s);border:1px solid var(--b2);border-radius:9px;color:var(--ts);font-size:.76rem;cursor:pointer;white-space:nowrap;transition:all .2s;}
+    .fb.on{background:rgba(255,255,255,.06);color:var(--t);border-color:rgba(255,255,255,.25);}
+    .btn-a{padding:8px 14px;border:none;border-radius:9px;font-size:.76rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+    .btn-gold{background:rgba(255,214,10,.12);color:var(--gold);border:1px solid rgba(255,214,10,.25);}
+    .btn-green{background:rgba(48,209,88,.10);color:var(--bio);border:1px solid rgba(48,209,88,.2);}
+    .btn-red{background:rgba(255,69,58,.08);color:var(--red);border:1px solid rgba(255,69,58,.2);}
+    .btn-blue{background:rgba(10,132,255,.10);color:var(--chem);border:1px solid rgba(10,132,255,.2);}
+    .tw{background:var(--s);border:1px solid var(--b);border-radius:16px;overflow:hidden;}
+    .th2{padding:13px 18px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;}
+    .tt2{font-size:.8rem;font-weight:600;}
+    .tc{font-size:.7rem;color:var(--tt);}
+    table{width:100%;border-collapse:collapse;}
+    th{padding:10px 13px;text-align:left;font-size:.65rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tt);border-bottom:1px solid var(--b);white-space:nowrap;}
+    td{padding:11px 13px;font-size:.78rem;border-bottom:1px solid var(--b);vertical-align:middle;}
+    tr:last-child td{border-bottom:none;}
+    tr:hover td{background:rgba(255,255,255,.015);}
+    .oid{font-family:monospace;font-size:.68rem;color:var(--ts);}
+    .oname{font-weight:600;}
+    .oemail{font-size:.7rem;color:var(--ts);}
+    .bc{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:40px;font-size:.63rem;font-weight:600;white-space:nowrap;}
+    .bio-b{background:rgba(48,209,88,.1);color:var(--bio);}
+    .chem-b{background:rgba(10,132,255,.1);color:var(--chem);}
+    .com-b{background:rgba(191,90,242,.1);color:var(--com);}
+    .bs{display:inline-block;padding:4px 9px;border-radius:40px;font-size:.63rem;font-weight:600;cursor:pointer;}
+    .s-pending{background:rgba(255,159,10,.12);color:var(--warm);border:1px solid rgba(255,159,10,.25);}
+    .s-approved{background:rgba(48,209,88,.10);color:var(--bio);border:1px solid rgba(48,209,88,.25);}
+    .s-paid{background:rgba(48,209,88,.10);color:var(--bio);border:1px solid rgba(48,209,88,.25);}
+    .s-rejected{background:rgba(255,69,58,.10);color:var(--red);border:1px solid rgba(255,69,58,.25);}
+    .ar{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+    .ba{padding:4px 8px;border-radius:7px;font-size:.68rem;cursor:pointer;border:1px solid;}
+    .ba-sl{background:var(--s2);border-color:var(--b2);color:var(--ts);}
+    .ba-ok{background:rgba(48,209,88,.08);border-color:rgba(48,209,88,.2);color:var(--bio);}
+    .ba-no{background:rgba(255,69,58,.08);border-color:rgba(255,69,58,.2);color:var(--red);}
+    .ba-bl{background:rgba(10,132,255,.08);border-color:rgba(10,132,255,.2);color:var(--chem);}
+    .empty{padding:50px 20px;text-align:center;color:var(--tt);font-size:.82rem;}
+    .empty .big{font-size:2rem;margin-bottom:10px;}
+    .mo{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s;}
+    .mo.open{opacity:1;pointer-events:all;}
+    .mb{background:var(--s);border:1px solid var(--b2);border-radius:20px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;transform:scale(.96);transition:transform .25s;scrollbar-width:none;}
+    .mo.open .mb{transform:scale(1);}
+    .mb::-webkit-scrollbar{display:none;}
+    .mh{padding:20px 22px 14px;border-bottom:1px solid var(--b);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--s);z-index:5;}
+    .mht{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:600;}
+    .mhc{background:none;border:none;cursor:pointer;color:var(--ts);font-size:1.2rem;}
+    .mbody{padding:18px 22px 22px;}
+    .mf{margin-bottom:12px;}
+    .mf label{display:block;font-size:.67rem;font-weight:600;color:var(--ts);letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px;}
+    .mf input,.mf select,.mf textarea{width:100%;padding:9px 12px;background:var(--s2);border:1px solid var(--b2);border-radius:9px;color:var(--t);font-size:.84rem;font-family:'DM Sans',sans-serif;outline:none;resize:vertical;}
+    .mf-hint{font-size:.63rem;color:var(--tt);margin-top:3px;}
+    .mfr{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .ctabs{display:flex;gap:0;border-bottom:1px solid var(--b);margin-bottom:18px;}
+    .ctb{padding:10px 16px;font-size:.76rem;font-weight:500;color:var(--ts);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;border-bottom:2px solid transparent;transition:all .2s;}
+    .ctb.on{color:var(--gold);border-bottom-color:var(--gold);}
+    .cs{display:none;}
+    .cs.on{display:block;}
+    .vmi{background:var(--s);border:1px solid var(--b);border-radius:11px;padding:13px 15px;margin-bottom:7px;display:flex;gap:11px;align-items:flex-start;}
+    .vmn{font-size:.68rem;font-weight:700;color:var(--tt);min-width:22px;margin-top:1px;}
+    .vmv{flex:1;}
+    .vmvt{font-size:.8rem;font-weight:600;margin-bottom:2px;}
+    .vmvy{font-size:.68rem;color:var(--ts);font-family:monospace;}
+    .vmvd{font-size:.65rem;color:var(--tt);margin-top:2px;}
+    .vmth{width:76px;height:43px;border-radius:5px;object-fit:cover;background:var(--s3);flex-shrink:0;}
+    .mmi{background:var(--s);border:1px solid var(--b);border-radius:9px;padding:10px 13px;margin-bottom:6px;display:flex;align-items:center;gap:9px;}
+    .smv{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.9);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s;}
+    .smv.open{opacity:1;pointer-events:all;}
+    .smvi{background:var(--s);border:1px solid var(--b2);border-radius:18px;padding:18px;max-width:420px;width:100%;transform:scale(.95);transition:transform .25s;}
+    .smv.open .smvi{transform:scale(1);}
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1c1c1c;border:1px solid var(--b2);border-radius:40px;padding:10px 20px;font-size:.8rem;opacity:0;transition:all .3s;z-index:400;white-space:nowrap;}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+    .toast.g{border-color:rgba(48,209,88,.3);color:var(--bio);}
+    .toast.r{border-color:rgba(255,69,58,.3);color:var(--red);}
+    @media(max-width:768px){.content{padding:14px;}.topbar,.tab-bar{padding-left:14px;padding-right:14px;}}
+  </style>
+</head>
+<body>
+<script>
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwx8jVP0aKibocxiF0uhOtsz-li5aHP1Weazw5Rgx4Svi3FDZcYkyJ8o88qh8LRBvu7/exec';
+const ADMIN_USERS={admin:'ineedposn2568'};
+const CM={bio:{name:'สอวน. ชีวะ ค่าย 1',icon:'🧬'},chem:{name:'สอวน. เคมี ค่าย 1',icon:'⚗️'},com:{name:'สอวน. คอม ค่าย 1',icon:'💻'}};
+</script>
+<div class="login-wrap" id="lw">
+  <div class="login-box">
+    <div class="login-logo">I<span>Need</span>POSN</div>
+    <div class="login-sub">Admin Dashboard</div>
+    <div class="lf"><label>Username</label><input type="text" id="lu" placeholder="admin"></div>
+    <div class="lf"><label>Password</label><input type="password" id="lp" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn-login" onclick="doLogin()">เข้าสู่ระบบ</button>
+    <div class="login-err" id="le">Username หรือ Password ไม่ถูกต้อง</div>
+    <div style="margin-top:14px;font-size:.67rem;color:var(--tt)">Default: admin / ineedposn2568</div>
+  </div>
+</div>
+<div class="app" id="aw">
+  <div class="topbar">
+    <div class="tb-logo">I<span>Need</span>POSN</div>
+    <div class="top-r">
+      <span class="ttag">⚙ Admin</span>
+      <a href="index.html" style="color:var(--ts);font-size:.75rem;text-decoration:none">← หน้าหลัก</a>
+      <a href="learn.html" target="_blank" style="color:var(--ts);font-size:.75rem;text-decoration:none">👁 ดูหน้าเรียน</a>
+      <button class="btn-logout" onclick="logout()">ออก</button>
+    </div>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-btn on" onclick="switchTab('orders',this)">📦 ออเดอร์</button>
+    <button class="tab-btn" onclick="switchTab('students',this)">👤 ผู้เรียน</button>
+    <button class="tab-btn" onclick="switchTab('content',this)">📹 เนื้อหาคอร์ส</button>
+  </div>
+  <div class="content">
+    <!-- ORDERS TAB -->
+    <div class="tab-content on" id="tab-orders">
+      <div class="stats">
+        <div class="sc"><div class="sl">ออเดอร์ทั้งหมด</div><div class="sv" id="stT" style="color:var(--t)">0</div><div class="ssub">รายการ</div></div>
+        <div class="sc"><div class="sl">รอตรวจสอบ</div><div class="sv" id="stP" style="color:var(--warm)">0</div><div class="ssub">รายการ</div></div>
+        <div class="sc"><div class="sl">ชีววิทยา</div><div class="sv" id="stB" style="color:var(--bio)">0</div><div class="ssub">คน</div></div>
+        <div class="sc"><div class="sl">เคมี</div><div class="sv" id="stC" style="color:var(--chem)">0</div><div class="ssub">คน</div></div>
+        <div class="sc"><div class="sl">คอมพิวเตอร์</div><div class="sv" id="stK" style="color:var(--com)">0</div><div class="ssub">คน</div></div>
+        <div class="sc"><div class="sl">รายได้ยืนยัน</div><div class="sv" id="stR" style="color:var(--gold)">฿0</div></div>
+      </div>
+      <div class="toolbar">
+        <div class="sw"><span class="si">🔍</span><input type="text" placeholder="ค้นหา…" id="oQ" oninput="renderOrders()"></div>
+        <button class="fb on" onclick="setF('oFilt','all',this,'o')">ทั้งหมด</button>
+        <button class="fb" onclick="setF('oFilt','pending',this,'o')">🟡 รอ</button>
+        <button class="fb" onclick="setF('oFilt','paid',this,'o')">🟢 ยืนยัน</button>
+        <button class="fb" onclick="setF('oFilt','rejected',this,'o')">🔴 ปฏิเสธ</button>
+        <button class="fb" onclick="setF('oFilt','bio',this,'o')">🧬</button>
+        <button class="fb" onclick="setF('oFilt','chem',this,'o')">⚗️</button>
+        <button class="fb" onclick="setF('oFilt','com',this,'o')">💻</button>
+        <button class="btn-a btn-gold" onclick="exportCSV()">📥 CSV</button>
+      </div>
+      <div class="tw">
+        <div class="th2"><div class="tt2">รายการสั่งซื้อ</div><div class="tc" id="oCnt"></div></div>
+        <div style="overflow-x:auto"><table><thead><tr><th>ID</th><th>ชื่อ/ชื่อเล่น</th><th>คอร์ส</th><th>ราคา</th><th>วันที่</th><th>IG/Discord</th><th>ศูนย์</th><th>สถานะ</th><th>จัดการ</th></tr></thead><tbody id="oTb"></tbody></table></div>
+      </div>
+    </div>
+    <!-- STUDENTS TAB -->
+    <div class="tab-content" id="tab-students">
+      <div class="toolbar">
+        <div class="sw"><span class="si">🔍</span><input type="text" placeholder="ค้นหา…" id="sQ" oninput="renderStudents()"></div>
+        <button class="fb on" onclick="setF('sFilt','all',this,'s')">ทั้งหมด</button>
+        <button class="fb" onclick="setF('sFilt','pending',this,'s')">⏳ รอ</button>
+        <button class="fb" onclick="setF('sFilt','approved',this,'s')">✅ อนุมัติ</button>
+        <button class="fb" onclick="setF('sFilt','rejected',this,'s')">❌ ปฏิเสธ</button>
+        <button class="btn-a btn-green" onclick="openSM()">+ สร้างบัญชี</button>
+      </div>
+      <div class="tw">
+        <div class="th2"><div class="tt2">บัญชีผู้เรียน</div><div class="tc" id="sCnt"></div></div>
+        <div style="overflow-x:auto"><table><thead><tr><th>ID</th><th>ชื่อ/ชื่อเล่น</th><th>Username</th><th>คอร์ส</th><th>สถานะ</th><th>เข้าล่าสุด</th><th>Progress</th><th>จัดการ</th></tr></thead><tbody id="sTb"></tbody></table></div>
+      </div>
+    </div>
+    <!-- CONTENT TAB -->
+    <div class="tab-content" id="tab-content">
+      <div class="ctabs">
+        <button class="ctb on" onclick="switchCT('bio',this)">🧬 ชีววิทยา</button>
+        <button class="ctb" onclick="switchCT('chem',this)">⚗️ เคมี</button>
+        <button class="ctb" onclick="switchCT('com',this)">💻 คอมพิวเตอร์</button>
+      </div>
+      <div id="cs-bio" class="cs on"></div>
+      <div id="cs-chem" class="cs"></div>
+      <div id="cs-com" class="cs"></div>
+    </div>
+  </div>
+</div>
+<!-- Student Modal -->
+<div class="mo" id="moS"><div class="mb">
+  <div class="mh"><div class="mht" id="smTit">สร้างบัญชีผู้เรียน</div><button class="mhc" onclick="closeM('moS')">✕</button></div>
+  <div class="mbody">
+    <div class="mfr"><div class="mf"><label>ชื่อ-นามสกุล *</label><input id="smNm" placeholder="ชื่อ นามสกุล"></div><div class="mf"><label>ชื่อเล่น *</label><input id="smNk" placeholder="ชื่อเล่น"></div></div>
+    <div class="mf"><label>อีเมล *</label><input type="email" id="smEm" placeholder="email@example.com"></div>
+    <div class="mf"><label>Username *</label><input id="smUs" placeholder="ใช้ login"></div>
+    <div class="mf"><label>รหัสผ่าน *</label><input id="smPw" placeholder="เช่น เบอร์โทร"><div class="mf-hint">แนะนำใช้เบอร์โทรหรือวันเกิด แล้วแจ้งผู้เรียนทาง LINE/IG</div></div>
+    <div class="mfr">
+      <div class="mf"><label>คอร์ส *</label><select id="smCk"><option value="">— เลือก —</option><option value="bio">สอวน. ชีวะ</option><option value="chem">สอวน. เคมี</option><option value="com">สอวน. คอม</option></select></div>
+      <div class="mf"><label>สถานะ</label><select id="smSt"><option value="pending">รอการอนุมัติ</option><option value="approved">อนุมัติเลย</option></select></div>
+    </div>
+    <div class="mf"><label>ORDER ID ที่เชื่อมโยง</label><input id="smOrd" placeholder="INP-xxxxxx"></div>
+    <input type="hidden" id="smEid">
+    <button class="btn-login" onclick="saveStu()">💾 บันทึก</button>
+  </div>
+</div></div>
+<!-- Reset PW Modal -->
+<div class="mo" id="moRp"><div class="mb">
+  <div class="mh"><div class="mht">รีเซ็ตรหัสผ่าน</div><button class="mhc" onclick="closeM('moRp')">✕</button></div>
+  <div class="mbody">
+    <div id="rpInf" style="font-size:.8rem;color:var(--ts);padding:10px 12px;background:var(--s2);border-radius:9px;margin-bottom:13px;"></div>
+    <div class="mf"><label>รหัสผ่านใหม่ *</label><input id="rpPw" placeholder="กรอกรหัสผ่านใหม่"></div>
+    <input type="hidden" id="rpId">
+    <button class="btn-login" onclick="doRp()">🔑 เปลี่ยนรหัสผ่าน</button>
+  </div>
+</div></div>
+<!-- Video Modal -->
+<div class="mo" id="moV"><div class="mb">
+  <div class="mh"><div class="mht" id="vmTit">เพิ่มบทเรียน</div><button class="mhc" onclick="closeM('moV')">✕</button></div>
+  <div class="mbody">
+    <div class="mf"><label>YouTube Video ID *</label><input id="vmYt" placeholder="dQw4w9WgXcQ"><div class="mf-hint">copy จาก URL: youtube.com/watch?v=<strong>VIDEO_ID</strong></div></div>
+    <div class="mf"><label>ชื่อบทเรียน *</label><input id="vmTt" placeholder="เช่น Cell Biology เบื้องต้น"></div>
+    <div class="mfr"><div class="mf"><label>ความยาว</label><input id="vmDr" placeholder="45 นาที"></div><div class="mf"><label>ลำดับที่</label><input type="number" id="vmOr" placeholder="1" min="1"></div></div>
+    <div class="mf"><label>คำอธิบาย</label><textarea id="vmDs" rows="2" placeholder="รายละเอียด..."></textarea></div>
+    <input type="hidden" id="vmCk"><input type="hidden" id="vmEid">
+    <button class="btn-login" onclick="saveVid()">💾 บันทึกบทเรียน</button>
+  </div>
+</div></div>
+<!-- Material Modal -->
+<div class="mo" id="moM"><div class="mb">
+  <div class="mh"><div class="mht">เพิ่มเอกสาร</div><button class="mhc" onclick="closeM('moM')">✕</button></div>
+  <div class="mbody">
+    <div class="mf"><label>ชื่อเอกสาร *</label><input id="mmNm" placeholder="เช่น เอกสาร เล่ม 1"></div>
+    <div class="mf"><label>URL *</label><input id="mmUr" placeholder="https://drive.google.com/..."><div class="mf-hint">แนะนำใช้ Google Drive (Share → Anyone with link)</div></div>
+    <div class="mf"><label>ประเภท</label><select id="mmTy"><option value="pdf">PDF</option><option value="doc">Document</option><option value="link">Link</option><option value="video">Video</option><option value="other">Other</option></select></div>
+    <input type="hidden" id="mmCk">
+    <button class="btn-login" onclick="saveMat()">💾 บันทึก</button>
+  </div>
+</div></div>
+<!-- Slip viewer -->
+<div class="smv" id="smv" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="smvi"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="font-size:.86rem;font-weight:600">สลิป</div><button class="mhc" onclick="document.getElementById('smv').classList.remove('open')">✕</button></div><img id="slipI" src="" style="width:100%;border-radius:9px"><div id="slipN" style="font-size:.7rem;color:var(--ts);text-align:center;margin-top:8px"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+var oFilt='all',sFilt='all',cCourse='bio';
+function getO(){return JSON.parse(localStorage.getItem('inp_orders')||'[]');}
+function setO(d){localStorage.setItem('inp_orders',JSON.stringify(d));}
+function getU(){return JSON.parse(localStorage.getItem('inp_users')||'[]');}
+function setU(d){localStorage.setItem('inp_users',JSON.stringify(d));}
+function getC(){var def={bio:{videos:[],materials:[]},chem:{videos:[],materials:[]},com:{videos:[],materials:[]}};return JSON.parse(localStorage.getItem('inp_content')||JSON.stringify(def));}
+function setC(d){localStorage.setItem('inp_content',JSON.stringify(d));}
+function doLogin(){var u=document.getElementById('lu').value.trim(),p=document.getElementById('lp').value;if(ADMIN_USERS[u]===p){document.getElementById('lw').style.display='none';document.getElementById('aw').classList.add('on');renderAll();}else{document.getElementById('le').classList.add('show');}}
+function logout(){document.getElementById('lw').style.display='flex';document.getElementById('aw').classList.remove('on');document.getElementById('lp').value='';}
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.getElementById('lw').style.display!=='none')doLogin();});
+function switchTab(n,btn){document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('on');});document.getElementById('tab-'+n).classList.add('on');if(n==='orders')renderOrders();if(n==='students')renderStudents();if(n==='content')renderContentTab('bio');}
+function renderAll(){renderStats();renderOrders();}
+function renderStats(){var o=getO();document.getElementById('stT').textContent=o.length;document.getElementById('stP').textContent=o.filter(function(x){return x.status==='pending';}).length;document.getElementById('stB').textContent=o.filter(function(x){return x.courseKey==='bio';}).length;document.getElementById('stC').textContent=o.filter(function(x){return x.courseKey==='chem';}).length;document.getElementById('stK').textContent=o.filter(function(x){return x.courseKey==='com';}).length;document.getElementById('stR').textContent='฿'+o.filter(function(x){return x.status==='paid';}).reduce(function(s,x){return s+x.price;},0).toLocaleString();}
+function setF(fVar,val,btn,prefix){window[fVar]=val;document.querySelectorAll('#tab-'+(prefix==='o'?'orders':'students')+' .fb').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');if(prefix==='o')renderOrders();else renderStudents();}
+function renderOrders(){var q=document.getElementById('oQ').value.toLowerCase();var o=getO().filter(function(x){var mq=!q||[x.name,x.email,x.id,x.ig||'',x.discord||''].some(function(v){return(v||'').toLowerCase().includes(q);});var mf=oFilt==='all'?true:(oFilt==='pending'||oFilt==='paid'||oFilt==='rejected')?x.status===oFilt:x.courseKey===oFilt;return mq&&mf;});document.getElementById('oCnt').textContent=o.length+' รายการ';var ico={bio:'🧬',chem:'⚗️',com:'💻'};var tb=document.getElementById('oTb');if(!o.length){tb.innerHTML='<tr><td colspan="9"><div class="empty"><div class="big">📭</div>ไม่พบรายการ</div></td></tr>';return;}var users=getU();tb.innerHTML=o.map(function(x){var dt=new Date(x.timestamp);var ds=dt.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'})+' '+dt.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});var sl={pending:'⏳ รอตรวจ',paid:'✅ ยืนยัน',rejected:'❌ ปฏิเสธ'}[x.status]||x.status;var hasU=users.some(function(u){return u.orderId===x.id;});return '<tr><td><div class="oid">'+x.id+'</div></td><td><div class="oname">'+x.name+'</div><div class="oemail">'+(x.nick||'')+' '+(x.grade||'')+'</div></td><td><span class="bc '+x.courseKey+'-b">'+(ico[x.courseKey]||'')+(CM[x.courseKey]?CM[x.courseKey].name.replace('สอวน. ','').replace(' ค่าย 1',''):'')+'</span></td><td>฿'+((x.price||0).toLocaleString())+'</td><td style="font-size:.7rem;color:var(--ts);white-space:nowrap">'+ds+'</td><td style="font-size:.7rem"><div>'+(x.ig||'—')+'</div><div style="color:var(--tt)">'+(x.discord||'—')+'</div></td><td style="font-size:.7rem;color:var(--ts)">'+(x.center||'—')+'</td><td><span class="bs s-'+x.status+'">'+sl+'</span></td><td><div class="ar">'+(x.slip?'<button class="ba ba-sl" onclick="viewSlip(\''+x.id+'\')">🖼</button>':'')+(x.status!=='paid'?'<button class="ba ba-ok" onclick="approveO(\''+x.id+'\')">✓</button>':'')+(x.status!=='rejected'?'<button class="ba ba-no" onclick="rejectO(\''+x.id+'\')">✕</button>':'')+(x.status==='paid'&&!hasU?'<button class="ba ba-bl" onclick="prefillFromOrder(\''+x.id+'\')">👤+</button>':'')+(hasU?'<span style="font-size:.62rem;color:var(--bio)">✓บัญชี</span>':'')+'</div></td></tr>';}).join('');}
+function approveO(id){var o=getO(),x=o.find(function(a){return a.id===id;});if(!x)return;x.status='paid';setO(o);renderAll();if(confirm('ต้องการสร้างบัญชีให้ "'+x.name+'" เลยไหม?'))prefillFromOrder(id);}
+function rejectO(id){var o=getO(),x=o.find(function(a){return a.id===id;});if(!x)return;x.status='rejected';setO(o);renderAll();showToast('❌ ปฏิเสธแล้ว','r');}
+function viewSlip(id){var o=getO().find(function(x){return x.id===id;});if(!o||!o.slip)return;document.getElementById('slipI').src=o.slip;document.getElementById('slipN').textContent=o.id+' · '+o.name;document.getElementById('smv').classList.add('open');}
+function renderStudents(){var q=document.getElementById('sQ').value.toLowerCase();var u=getU().filter(function(x){var mq=!q||[x.name,x.nick,x.email,x.username,x.id].some(function(v){return(v||'').toLowerCase().includes(q);});return mq&&(sFilt==='all'||x.status===sFilt);});document.getElementById('sCnt').textContent=u.length+' บัญชี';var ico={bio:'🧬',chem:'⚗️',com:'💻'};var tb=document.getElementById('sTb');if(!u.length){tb.innerHTML='<tr><td colspan="8"><div class="empty"><div class="big">👤</div>ยังไม่มีบัญชี</div></td></tr>';return;}var content=getC();tb.innerHTML=u.map(function(x){var w=(x.watchedVideos||[]).length;var tot=(content[x.courseKey]||{videos:[]}).videos.length;var pct=tot>0?Math.round(w/tot*100):0;var ll=x.lastLoginAt?new Date(x.lastLoginAt).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'}):'—';return '<tr><td><div class="oid">'+x.id+'</div></td><td><div class="oname">'+x.name+'</div><div class="oemail">'+(x.nick||'')+(x.grade?' · '+x.grade:'')+'</div></td><td style="font-family:monospace;font-size:.74rem">'+x.username+'</td><td><span class="bc '+x.courseKey+'-b">'+(ico[x.courseKey]||'')+' '+(CM[x.courseKey]?CM[x.courseKey].name.replace('สอวน. ','').replace(' ค่าย 1',''):'')+'</span></td><td><span class="bs s-'+x.status+'">'+(x.status==='approved'?'✅ อนุมัติ':x.status==='rejected'?'❌ ปฏิเสธ':'⏳ รอ')+'</span></td><td style="font-size:.7rem;color:var(--ts)">'+ll+'</td><td style="font-size:.72rem;color:var(--ts)">'+(tot>0?w+'/'+tot+' ('+pct+'%)':'—')+'</td><td><div class="ar">'+(x.status!=='approved'?'<button class="ba ba-ok" onclick="appStu(\''+x.id+'\')">✅</button>':'')+(x.status!=='rejected'?'<button class="ba ba-no" onclick="rejStu(\''+x.id+'\')">❌</button>':'')+'<button class="ba ba-bl" onclick="openRp(\''+x.id+'\')">🔑</button><button class="ba ba-sl" onclick="editStu(\''+x.id+'\')">✏️</button><button class="ba ba-no" onclick="delStu(\''+x.id+'\')">🗑</button></div></td></tr>';}).join('');}
+function appStu(id){var all=getU(),idx=all.findIndex(function(u){return u.id===id;});if(idx<0)return;all[idx].status='approved';all[idx].approvedAt=new Date().toISOString();setU(all);renderStudents();showToast('✅ อนุมัติแล้ว','g');}
+function rejStu(id){var all=getU(),idx=all.findIndex(function(u){return u.id===id;});if(idx<0)return;all[idx].status='rejected';setU(all);renderStudents();showToast('❌ ปฏิเสธแล้ว','r');}
+function delStu(id){if(!confirm('ลบบัญชีนี้?'))return;setU(getU().filter(function(u){return u.id!==id;}));renderStudents();showToast('ลบแล้ว');}
+function openSM(){document.getElementById('smTit').textContent='สร้างบัญชีผู้เรียน';['smNm','smNk','smEm','smUs','smPw','smOrd'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('smCk').value='';document.getElementById('smSt').value='pending';document.getElementById('smEid').value='';openM('moS');}
+function editStu(id){var u=getU().find(function(x){return x.id===id;});if(!u)return;document.getElementById('smTit').textContent='แก้ไขบัญชี';document.getElementById('smNm').value=u.name||'';document.getElementById('smNk').value=u.nick||'';document.getElementById('smEm').value=u.email||'';document.getElementById('smUs').value=u.username||'';document.getElementById('smPw').value='';document.getElementById('smCk').value=u.courseKey||'';document.getElementById('smSt').value=u.status||'pending';document.getElementById('smOrd').value=u.orderId||'';document.getElementById('smEid').value=id;openM('moS');}
+function prefillFromOrder(ordId){var o=getO().find(function(x){return x.id===ordId;});if(!o)return;document.getElementById('smTit').textContent='สร้างบัญชีจาก '+ordId;document.getElementById('smNm').value=o.name||'';document.getElementById('smNk').value=o.nick||'';document.getElementById('smEm').value=o.email||'';document.getElementById('smUs').value=o.email||'';document.getElementById('smPw').value=o.phone||'';document.getElementById('smCk').value=o.courseKey||'';document.getElementById('smSt').value='approved';document.getElementById('smOrd').value=ordId;document.getElementById('smEid').value='';openM('moS');switchTab('students',document.querySelectorAll('.tab-btn')[1]);}
+function saveStu(){var nm=document.getElementById('smNm').value.trim(),nk=document.getElementById('smNk').value.trim(),em=document.getElementById('smEm').value.trim(),us=document.getElementById('smUs').value.trim(),pw=document.getElementById('smPw').value,ck=document.getElementById('smCk').value,st=document.getElementById('smSt').value,ord=document.getElementById('smOrd').value.trim(),eid=document.getElementById('smEid').value;if(!nm||!em||!us||!ck){showToast('กรุณากรอกข้อมูลให้ครบ','r');return;}var all=getU();if(eid){var idx=all.findIndex(function(u){return u.id===eid;});if(idx<0)return;all[idx]=Object.assign(all[idx],{name:nm,nick:nk,email:em,username:us,courseKey:ck,status:st,orderId:ord});if(pw)all[idx].password=btoa(encodeURIComponent(pw));if(st==='approved'&&!all[idx].approvedAt)all[idx].approvedAt=new Date().toISOString();setU(all);showToast('✅ อัปเดตแล้ว','g');}else{if(!pw){showToast('กรุณากรอกรหัสผ่าน','r');return;}if(all.some(function(u){return u.username.toLowerCase()===us.toLowerCase();})){showToast('Username นี้มีอยู่แล้ว','r');return;}all.unshift({id:'USR-'+Date.now().toString().slice(-6),username:us,password:btoa(encodeURIComponent(pw)),name:nm,nick:nk,email:em,courseKey:ck,status:st,orderId:ord,createdAt:new Date().toISOString(),approvedAt:st==='approved'?new Date().toISOString():null,activeSessionToken:null,watchedVideos:[],lastVideoId:null});setU(all);showToast('✅ สร้างบัญชีแล้ว · username: '+us,'g');}closeM('moS');renderStudents();}
+function openRp(id){var u=getU().find(function(x){return x.id===id;});if(!u)return;document.getElementById('rpInf').textContent='รีเซ็ตรหัสผ่านของ: '+u.name+' ('+u.username+')';document.getElementById('rpPw').value='';document.getElementById('rpId').value=id;openM('moRp');}
+function doRp(){var id=document.getElementById('rpId').value,pw=document.getElementById('rpPw').value;if(!pw){showToast('กรุณากรอกรหัสผ่านใหม่','r');return;}var all=getU(),idx=all.findIndex(function(u){return u.id===id;});if(idx<0)return;all[idx].password=btoa(encodeURIComponent(pw));all[idx].activeSessionToken=null;setU(all);closeM('moRp');renderStudents();showToast('🔑 รีเซ็ตแล้ว','g');}
+function switchCT(key,btn){cCourse=key;document.querySelectorAll('.ctb').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');document.querySelectorAll('.cs').forEach(function(s){s.classList.remove('on');});document.getElementById('cs-'+key).classList.add('on');renderContentTab(key);}
+function renderContentTab(key){cCourse=key;var c=getC()[key]||{videos:[],materials:[]};var sorted=c.videos.slice().sort(function(a,b){return(a.order||0)-(b.order||0);});var ico={pdf:'📄',doc:'📝',link:'🔗',video:'🎬',other:'📎'};var html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div style="font-family:\'Playfair Display\',serif;font-size:1rem;font-weight:600">'+(CM[key]?CM[key].icon+' '+CM[key].name:'')+'</div><div style="display:flex;gap:7px"><button class="btn-a btn-green" onclick="openAV(\''+key+'\')">+ บทเรียน</button><button class="btn-a btn-blue" onclick="openAM(\''+key+'\')">+ เอกสาร</button></div></div>';html+='<div style="font-size:.67rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tt);margin-bottom:9px">📹 บทเรียน ('+c.videos.length+')</div>';if(!sorted.length){html+='<div class="empty"><div class="big">📭</div><p>ยังไม่มีบทเรียน กด "+ บทเรียน"</p></div>';}else{html+=sorted.map(function(v,i){return '<div class="vmi"><div class="vmn">'+String(v.order||i+1).padStart(2,'0')+'</div><img class="vmth" src="https://img.youtube.com/vi/'+v.ytId+'/mqdefault.jpg" onerror="this.style.display=\'none\'"><div class="vmv"><div class="vmvt">'+v.title+'</div><div class="vmvy">'+v.ytId+'</div><div class="vmvd">'+(v.duration||'')+(v.description?' · '+v.description.slice(0,50):'')+'</div></div><div style="display:flex;gap:5px;flex-shrink:0"><a href="https://youtube.com/watch?v='+v.ytId+'" target="_blank" class="ba ba-bl">▶</a><button class="ba ba-sl" onclick="editVid(\''+key+'\',\''+v.id+'\')">✏️</button><button class="ba ba-no" onclick="delVid(\''+key+'\',\''+v.id+'\')">🗑</button></div></div>';}).join('');}html+='<div style="font-size:.67rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tt);margin:18px 0 9px">📁 เอกสาร ('+c.materials.length+')</div>';if(!c.materials.length){html+='<div style="font-size:.76rem;color:var(--tt)">ยังไม่มีเอกสาร</div>';}else{html+=c.materials.map(function(m){return '<div class="mmi"><span>'+(ico[m.type]||'📎')+'</span><span style="flex:1;font-size:.78rem;font-weight:500">'+m.name+'</span><a href="'+m.url+'" target="_blank" class="ba ba-bl" style="font-size:.62rem">เปิด</a><button class="ba ba-no" onclick="delMat(\''+key+'\',\''+m.id+'\')">🗑</button></div>';}).join('');}document.getElementById('cs-'+key).innerHTML=html;}
+function openAV(k){['vmYt','vmTt','vmDr','vmDs'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('vmOr').value=(getC()[k]?.videos?.length||0)+1;document.getElementById('vmCk').value=k;document.getElementById('vmEid').value='';document.getElementById('vmTit').textContent='เพิ่มบทเรียน';openM('moV');}
+function editVid(k,vid){var v=(getC()[k]?.videos||[]).find(function(x){return x.id===vid;});if(!v)return;document.getElementById('vmYt').value=v.ytId||'';document.getElementById('vmTt').value=v.title||'';document.getElementById('vmDr').value=v.duration||'';document.getElementById('vmOr').value=v.order||'';document.getElementById('vmDs').value=v.description||'';document.getElementById('vmCk').value=k;document.getElementById('vmEid').value=vid;document.getElementById('vmTit').textContent='แก้ไขบทเรียน';openM('moV');}
+function saveVid(){var yt=document.getElementById('vmYt').value.trim(),tt=document.getElementById('vmTt').value.trim(),dr=document.getElementById('vmDr').value.trim(),or=parseInt(document.getElementById('vmOr').value)||1,ds=document.getElementById('vmDs').value.trim(),k=document.getElementById('vmCk').value,eid=document.getElementById('vmEid').value;if(!yt||!tt){showToast('กรุณากรอก YouTube ID และชื่อ','r');return;}if(!/^[a-zA-Z0-9_-]{6,15}$/.test(yt)){showToast('YouTube ID ไม่ถูกต้อง','r');return;}var c=getC();if(!c[k])c[k]={videos:[],materials:[]};if(eid){var idx=c[k].videos.findIndex(function(v){return v.id===eid;});if(idx>=0)c[k].videos[idx]=Object.assign(c[k].videos[idx],{ytId:yt,title:tt,duration:dr,order:or,description:ds});}else{c[k].videos.push({id:'v_'+k+'_'+Date.now(),ytId:yt,title:tt,duration:dr,order:or,description:ds});}c[k].videos.sort(function(a,b){return(a.order||0)-(b.order||0);});setC(c);closeM('moV');renderContentTab(k);showToast('✅ บันทึกแล้ว','g');}
+function delVid(k,vid){if(!confirm('ลบบทเรียนนี้?'))return;var c=getC();c[k].videos=c[k].videos.filter(function(v){return v.id!==vid;});setC(c);renderContentTab(k);showToast('ลบแล้ว');}
+function openAM(k){['mmNm','mmUr'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('mmTy').value='pdf';document.getElementById('mmCk').value=k;openM('moM');}
+function saveMat(){var nm=document.getElementById('mmNm').value.trim(),ur=document.getElementById('mmUr').value.trim(),ty=document.getElementById('mmTy').value,k=document.getElementById('mmCk').value;if(!nm||!ur){showToast('กรุณากรอกชื่อและ URL','r');return;}var c=getC();if(!c[k])c[k]={videos:[],materials:[]};c[k].materials.push({id:'m_'+k+'_'+Date.now(),name:nm,url:ur,type:ty});setC(c);closeM('moM');renderContentTab(k);showToast('✅ เพิ่มเอกสารแล้ว','g');}
+function delMat(k,mid){if(!confirm('ลบเอกสารนี้?'))return;var c=getC();c[k].materials=c[k].materials.filter(function(m){return m.id!==mid;});setC(c);renderContentTab(k);showToast('ลบแล้ว');}
+function exportCSV(){var H=['ID','ชื่อ','ชื่อเล่น','ชั้น','ศูนย์','อีเมล','IG','Discord','คอร์ส','ราคา','สถานะ','วันที่'];var rows=getO().map(function(o){return[o.id,o.name,o.nick||'',o.grade||'',o.center||'',o.email,o.ig||'',o.discord||'',o.course,o.price,{pending:'รอตรวจ',paid:'ยืนยัน',rejected:'ปฏิเสธ'}[o.status]||o.status,new Date(o.timestamp).toLocaleString('th-TH')];});var csv=[H].concat(rows).map(function(r){return r.map(function(v){return'"'+String(v||'').replace(/"/g,'""')+'"';}).join(',');}).join('\n');var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));a.download='ineedposn_orders_'+new Date().toISOString().slice(0,10)+'.csv';a.click();showToast('📥 Export แล้ว','g');}
+function openM(id){document.getElementById(id).classList.add('open');}
+function closeM(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.mo').forEach(function(m){m.addEventListener('click',function(e){if(e.target===m)m.classList.remove('open');});});
+var tt2;function showToast(msg,type){var t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+(type||'');clearTimeout(tt2);tt2=setTimeout(function(){t.className='toast';},2800);}
+</script>
+</body>
+</html>

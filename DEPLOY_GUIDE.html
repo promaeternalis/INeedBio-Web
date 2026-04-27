@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>INeedPOSN — คู่มือ Deploy เว็บ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{background:#050505;color:#f0f0f0;font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;line-height:1.7;}
+    :root{--gold:#ffd60a;--bio:#30d158;--chem:#0a84ff;--com:#bf5af2;--warm:#ff9f0a;--red:#ff453a;}
+    .wrap{max-width:760px;margin:0 auto;padding:60px 24px 100px;}
+    h1{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:700;margin-bottom:6px;}
+    h1 span{color:var(--gold);}
+    .sub{font-size:.9rem;color:#888;margin-bottom:40px;}
+    .toc{background:#0d0d0d;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:20px 24px;margin-bottom:40px;}
+    .toc-title{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#555;margin-bottom:12px;}
+    .toc a{display:flex;align-items:center;gap:8px;padding:6px 0;color:#aaa;text-decoration:none;font-size:.84rem;border-bottom:1px solid rgba(255,255,255,.04);}
+    .toc a:last-child{border-bottom:none;}
+    .toc a:hover{color:var(--gold);}
+    .step-num{width:22px;height:22px;border-radius:50%;background:rgba(255,214,10,.12);color:var(--gold);font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .section{margin-bottom:48px;}
+    .sec-head{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+    .sec-num{width:36px;height:36px;border-radius:10px;background:rgba(255,214,10,.1);border:1px solid rgba(255,214,10,.2);color:var(--gold);font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .sec-title{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:600;}
+    p{font-size:.88rem;color:#ccc;margin-bottom:12px;}
+    .note{background:rgba(255,214,10,.06);border:1px solid rgba(255,214,10,.15);border-radius:10px;padding:13px 16px;font-size:.8rem;color:rgba(255,214,10,.85);margin-bottom:14px;line-height:1.7;}
+    .warn{background:rgba(255,159,10,.06);border:1px solid rgba(255,159,10,.2);border-radius:10px;padding:13px 16px;font-size:.8rem;color:rgba(255,159,10,.85);margin-bottom:14px;line-height:1.7;}
+    .ok{background:rgba(48,209,88,.05);border:1px solid rgba(48,209,88,.2);border-radius:10px;padding:13px 16px;font-size:.8rem;color:rgba(48,209,88,.9);margin-bottom:14px;line-height:1.7;}
+    .steps-list{counter-reset:st;list-style:none;margin-bottom:14px;}
+    .steps-list li{counter-increment:st;display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;font-size:.84rem;color:#ccc;}
+    .steps-list li::before{content:counter(st);width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#aaa;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+    code{background:#161616;border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:2px 7px;font-family:monospace;font-size:.82rem;color:#e0e0e0;}
+    pre{background:#0d0d0d;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:16px 18px;font-family:monospace;font-size:.8rem;color:#e0e0e0;overflow-x:auto;margin-bottom:14px;line-height:1.7;}
+    pre .cm{color:#555;}
+    pre .kw{color:var(--chem);}
+    pre .st{color:var(--bio);}
+    pre .hl{color:var(--gold);}
+    .file-tree{background:#0d0d0d;border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:16px 18px;font-family:monospace;font-size:.8rem;margin-bottom:16px;line-height:2;}
+    .f-folder{color:var(--chem);}
+    .f-html{color:var(--bio);}
+    .f-gs{color:var(--gold);}
+    .f-img{color:var(--com);}
+    .f-indent{margin-left:20px;display:block;}
+    .badge-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+    .badge{padding:4px 10px;border-radius:40px;font-size:.68rem;font-weight:600;}
+    .free{background:rgba(48,209,88,.1);color:var(--bio);border:1px solid rgba(48,209,88,.2);}
+    .easy{background:rgba(10,132,255,.1);color:var(--chem);border:1px solid rgba(10,132,255,.2);}
+    .time{background:rgba(255,214,10,.1);color:var(--gold);border:1px solid rgba(255,214,10,.2);}
+    .divider{height:1px;background:rgba(255,255,255,.06);margin:40px 0;}
+    .url-ex{display:flex;align-items:center;gap:8px;background:#0d0d0d;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 14px;font-family:monospace;font-size:.82rem;color:#aaa;margin-bottom:14px;}
+    .url-ex .domain{color:var(--bio);}
+    .img-hint{background:#111;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:16px;margin-bottom:14px;font-size:.8rem;color:#888;}
+    .img-hint strong{color:#ccc;}
+    h3{font-size:.9rem;font-weight:700;color:#ccc;margin-bottom:8px;margin-top:16px;}
+    .important-box{background:rgba(255,69,58,.04);border:1px solid rgba(255,69,58,.2);border-radius:12px;padding:16px 18px;margin-bottom:16px;}
+    .important-box .ib-title{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--red);margin-bottom:8px;}
+    .important-box p{color:rgba(255,100,90,.9);margin:0;}
+    .final-note{background:#0d0d0d;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:24px;margin-top:40px;text-align:center;}
+    .fn-title{font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:8px;}
+    .fn-title span{color:var(--gold);}
+    .fn-desc{font-size:.82rem;color:#888;line-height:1.7;}
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div style="margin-bottom:24px">
+    <a href="index.html" style="color:#666;text-decoration:none;font-size:.78rem">← กลับหน้าหลัก</a>
+  </div>
+
+  <h1>คู่มือ Deploy <span>INeedPOSN</span></h1>
+  <div class="sub">ขึ้นเว็บสาธารณะฟรี · สำหรับคอร์ส สอวน. ปีการศึกษา 2568</div>
+
+  <div class="badge-row">
+    <span class="badge free">ฟรี 100%</span>
+    <span class="badge easy">ไม่ต้องเขียน code เพิ่ม</span>
+    <span class="badge time">ใช้เวลา ~20 นาที</span>
+  </div>
+
+  <!-- TABLE OF CONTENTS -->
+  <div class="toc">
+    <div class="toc-title">สารบัญ</div>
+    <a href="#overview"><div class="step-num">📋</div>ภาพรวม — ไฟล์ที่ต้องการ</a>
+    <a href="#step1"><div class="step-num">1</div>ตั้งค่า Google Apps Script (Backend)</a>
+    <a href="#step2"><div class="step-num">2</div>แก้ไข Config ในไฟล์ HTML</a>
+    <a href="#step3"><div class="step-num">3</div>Deploy บน Netlify (ฟรี)</a>
+    <a href="#step4"><div class="step-num">4</div>ทดสอบระบบ</a>
+    <a href="#step5"><div class="step-num">5</div>เพิ่มรูปภาพ (QR + รูปผู้สอน)</a>
+    <a href="#step6"><div class="step-num">6</div>Custom Domain (ถ้ามี)</a>
+    <a href="#faq"><div class="step-num">❓</div>คำถามที่พบบ่อย</a>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- OVERVIEW -->
+  <div class="section" id="overview">
+    <div class="sec-head">
+      <div class="sec-num">📋</div>
+      <div class="sec-title">ภาพรวม — ไฟล์ที่ต้องการ</div>
+    </div>
+
+    <p>เว็บ INeedPOSN ประกอบด้วยไฟล์ HTML ทั้งหมด ไม่ต้องใช้ server ใดๆ เพราะใช้ Google Apps Script เป็น backend ฟรี</p>
+
+    <div class="file-tree">
+      <span class="f-folder">📁 ineedposn/ (โฟลเดอร์ที่จะ upload)</span>
+      <span class="f-html f-indent">├── index.html &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#444">← หน้าหลัก + สมัครเรียน</span></span>
+      <span class="f-html f-indent">├── learn.html &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#444">← ห้องเรียนนักเรียน</span></span>
+      <span class="f-html f-indent">├── admin.html &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#444">← หลังบ้าน Admin</span></span>
+      <span class="f-img f-indent">├── qr-promptpay.png &nbsp;<span style="color:#444">← QR PromptPay ของคุณ</span></span>
+      <span class="f-img f-indent">├── qr-discord.png &nbsp;&nbsp;&nbsp;<span style="color:#444">← QR เข้า Discord</span></span>
+      <span class="f-img f-indent">├── photo-bio.jpg &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#444">← รูปพี่พร้อม</span></span>
+      <span class="f-img f-indent">├── photo-chem.jpg &nbsp;&nbsp;&nbsp;<span style="color:#444">← รูปพี่หมีลี่</span></span>
+      <span class="f-img f-indent">└── photo-com.jpg &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#444">← รูปพี่น้ำแข็ง</span></span>
+    </div>
+
+    <div class="important-box">
+      <div class="ib-title">⚠️ ข้อสำคัญ — เรื่อง localStorage</div>
+      <p>เว็บนี้ใช้ localStorage เก็บข้อมูล ซึ่งหมายความว่าข้อมูลถูกเก็บไว้ในเบราว์เซอร์แต่ละเครื่อง<br/><br/>
+      <strong>ปัญหา:</strong> ถ้านักเรียน A สมัครจากโทรศัพท์ → ข้อมูลอยู่ใน localStorage ของโทรศัพท์เขา แต่เมื่อพี่พร้อมเปิด admin.html จากคอมพิวเตอร์อีกเครื่อง → จะ<strong>ไม่เห็น</strong>ออเดอร์นั้น<br/><br/>
+      <strong>วิธีแก้:</strong> ต้องตั้งค่า Google Apps Script (ขั้นตอนที่ 1) เพื่อให้ข้อมูลอยู่ใน Google Sheet แทน</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- STEP 1: APPS SCRIPT -->
+  <div class="section" id="step1">
+    <div class="sec-head">
+      <div class="sec-num">1</div>
+      <div class="sec-title">ตั้งค่า Google Apps Script</div>
+    </div>
+
+    <p>Google Apps Script คือ backend ฟรีที่รับออเดอร์จากเว็บและเก็บไว้ใน Google Sheet ของคุณ</p>
+
+    <h3>1.1 สร้าง Google Sheet</h3>
+    <ol class="steps-list">
+      <li>ไปที่ <strong>sheets.google.com</strong> แล้วกด <code>+ Blank spreadsheet</code></li>
+      <li>ตั้งชื่อ เช่น <code>INeedPOSN Orders 2568</code></li>
+      <li>Copy <strong>Spreadsheet ID</strong> จาก URL:<br/>
+        <code>docs.google.com/spreadsheets/d/<strong style="color:var(--gold)">THIS_IS_YOUR_ID</strong>/edit</code>
+      </li>
+    </ol>
+
+    <h3>1.2 สร้าง Apps Script</h3>
+    <ol class="steps-list">
+      <li>ใน Google Sheet กด <code>Extensions → Apps Script</code></li>
+      <li>ลบ code เดิมทั้งหมดออก</li>
+      <li>วาง code จากไฟล์ <code>appscript.gs</code> (ไฟล์ที่ให้ไว้)</li>
+      <li>แก้บรรทัดบนสุด:<br/>
+        <pre><span class="kw">const</span> SS_ID = <span class="st">'ใส่ Spreadsheet ID ที่ copy มา'</span>;</pre>
+      </li>
+      <li>กด 💾 Save (Ctrl+S)</li>
+    </ol>
+
+    <h3>1.3 Deploy เป็น Web App</h3>
+    <ol class="steps-list">
+      <li>กด <code>Deploy → New deployment</code></li>
+      <li>กด ⚙ icon แล้วเลือก <strong>Web app</strong></li>
+      <li>ตั้งค่าดังนี้:
+        <pre><span class="cm">Execute as:</span>  <span class="hl">Me (your account)</span>
+<span class="cm">Who has access:</span> <span class="hl">Anyone</span></pre>
+      </li>
+      <li>กด <strong>Deploy</strong> → อนุญาต permission ที่ขอ</li>
+      <li>Copy <strong>Web app URL</strong> ที่ได้มา เช่น:<br/>
+        <code>https://script.google.com/macros/s/AKfycbxXXXXXX.../exec</code>
+      </li>
+    </ol>
+
+    <div class="ok">✅ ตอนนี้คุณมี URL ของ Apps Script แล้ว เก็บไว้ใช้ในขั้นตอนถัดไป</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- STEP 2: CONFIG -->
+  <div class="section" id="step2">
+    <div class="sec-head">
+      <div class="sec-num">2</div>
+      <div class="sec-title">แก้ไข Config ในไฟล์ HTML</div>
+    </div>
+
+    <p>เปิดไฟล์ <code>index.html</code> และ <code>admin.html</code> ด้วย Notepad, VS Code, หรือ text editor ใดก็ได้ แล้วแก้บรรทัดด้านบนสุดของ &lt;script&gt;</p>
+
+    <h3>index.html — config block</h3>
+    <pre><span class="kw">const</span> SCRIPT_URL       = <span class="st">'https://script.google.com/macros/s/AKfycbxXXX/exec'</span>; <span class="cm">← Apps Script URL</span>
+<span class="kw">const</span> PROMPTPAY_NUMBER = <span class="st">'081-234-5678'</span>;      <span class="cm">← เบอร์ PromptPay จริง</span>
+<span class="kw">const</span> PROMPTPAY_NAME   = <span class="st">'ภวัต เศรษฐเสถียร'</span>;
+<span class="kw">const</span> PRICE_FULL       = <span class="hl">990</span>;
+<span class="kw">const</span> PRICE_SALE       = <span class="hl">690</span>;
+<span class="kw">const</span> PRICE_AFTER      = <span class="hl">790</span>;
+<span class="kw">const</span> SALE_DEADLINE    = <span class="st">'30 เม.ย. 2568'</span>;
+<span class="kw">const</span> LINE_BIO  = <span class="st">'https://line.me/ti/g2/XXXXXX'</span>; <span class="cm">← Link LINE กลุ่ม</span>
+<span class="kw">const</span> LINE_CHEM = <span class="st">'https://line.me/ti/g2/XXXXXX'</span>;
+<span class="kw">const</span> LINE_COM  = <span class="st">'https://line.me/ti/g2/XXXXXX'</span>;
+<span class="kw">const</span> IG_HANDLE = <span class="st">'@ineedposn'</span>;              <span class="cm">← IG จริง</span></pre>
+
+    <h3>admin.html — config block</h3>
+    <pre><span class="kw">const</span> SCRIPT_URL   = <span class="st">'https://script.google.com/macros/s/AKfycbxXXX/exec'</span>;
+<span class="kw">const</span> ADMIN_USERS  = { admin: <span class="st">'รหัสผ่านที่คุณต้องการ'</span> }; <span class="cm">← เปลี่ยนรหัสผ่าน!</span></pre>
+
+    <div class="warn">⚠️ อย่าลืมเปลี่ยนรหัสผ่าน admin จาก <code>ineedposn2568</code> เป็นรหัสผ่านที่ปลอดภัยกว่า</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- STEP 3: NETLIFY -->
+  <div class="section" id="step3">
+    <div class="sec-head">
+      <div class="sec-num">3</div>
+      <div class="sec-title">Deploy บน Netlify (ฟรี)</div>
+    </div>
+
+    <p>Netlify เป็นบริการ hosting ฟรีที่ง่ายที่สุด แค่ลาก-วางโฟลเดอร์ก็เสร็จ ได้ URL สาธารณะทันที</p>
+
+    <ol class="steps-list">
+      <li>ไปที่ <strong>netlify.com</strong> แล้ว Sign up ด้วย Google หรือ GitHub (ฟรี)</li>
+      <li>หลัง login จะเห็นหน้า Dashboard กด <strong>Add new site</strong></li>
+      <li>เลือก <strong>"Deploy manually"</strong> (ลากไฟล์)</li>
+      <li><strong>ลากโฟลเดอร์</strong> <code>ineedposn/</code> ทั้งโฟลเดอร์วางลงในช่อง Drop zone</li>
+      <li>รอ 10–30 วินาที → เว็บขึ้นออนไลน์ทันที!</li>
+    </ol>
+
+    <p>จะได้ URL แบบ:</p>
+    <div class="url-ex">🌐 <span class="domain">https://whimsical-mochi-abc123.netlify.app</span></div>
+
+    <h3>เปลี่ยนชื่อ subdomain</h3>
+    <ol class="steps-list">
+      <li>กด <strong>Site configuration → General</strong></li>
+      <li>กด <strong>Change site name</strong></li>
+      <li>ตั้งชื่อเป็น <code>ineedposn</code> หรือ <code>ineedposn-2568</code></li>
+      <li>URL จะเปลี่ยนเป็น:<br/>
+        <div class="url-ex" style="margin-top:8px">🌐 <span class="domain">https://ineedposn.netlify.app</span></div>
+      </li>
+    </ol>
+
+    <div class="note">💡 เมื่ออัปเดตไฟล์ HTML ในอนาคต ให้กด <strong>Deploys → Drag and drop</strong> แล้ววางโฟลเดอร์ใหม่ได้เลย ไม่ต้อง setup ใหม่</div>
+
+    <h3>ทางเลือกอื่น: GitHub Pages (ฟรี แต่ยากกว่านิดหน่อย)</h3>
+    <ol class="steps-list">
+      <li>สร้าง GitHub account ที่ <code>github.com</code></li>
+      <li>สร้าง repository ชื่อ <code>ineedposn</code></li>
+      <li>Upload ไฟล์ทั้งหมด</li>
+      <li>ไปที่ Settings → Pages → Branch: main → Save</li>
+      <li>URL: <code>https://YOUR_USERNAME.github.io/ineedposn/</code></li>
+    </ol>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- STEP 4: TEST -->
+  <div class="section" id="step4">
+    <div class="sec-head">
+      <div class="sec-num">4</div>
+      <div class="sec-title">ทดสอบระบบ</div>
+    </div>
+
+    <p>หลังจาก deploy เสร็จ ทดสอบตามลำดับนี้:</p>
+
+    <ol class="steps-list">
+      <li><strong>เปิดหน้าหลัก</strong> — ดูว่า index.html โหลดได้ ราคาแสดงถูกต้อง</li>
+      <li><strong>ทดสอบซื้อ</strong> — กดสมัครเรียน กรอกข้อมูล สร้าง username/password ดู ORDER ID และข้อมูลบัญชีที่ได้</li>
+      <li><strong>เปิด Admin</strong> — ไปที่ <code>/admin.html</code> login ด้วย username/password ที่ตั้งไว้ ดูว่าออเดอร์ขึ้นมาใน tab ออเดอร์</li>
+      <li><strong>สร้างบัญชีนักเรียน</strong> — ใน admin กด ✓ อนุมัติออเดอร์ → บัญชีนักเรียนจะเปลี่ยนสถานะ (หรือสร้างเองใน tab ผู้เรียน)</li>
+      <li><strong>ทดสอบ login นักเรียน</strong> — เปิด <code>/learn.html</code> login ด้วย username/password ที่สร้างไว้</li>
+      <li><strong>ใส่เนื้อหา</strong> — ใน admin tab "เนื้อหาคอร์ส" → ใส่ YouTube Video ID ของคลิปที่จะสอน</li>
+    </ol>
+
+    <div class="ok">✅ ถ้าทุกขั้นตอนทำงานได้ เว็บพร้อมใช้งานจริงแล้ว!</div>
+
+    <div class="warn">⚠️ ปัญหาที่พบบ่อย: ถ้า Admin ไม่เห็นออเดอร์ → ตรวจสอบว่าได้ตั้งค่า Apps Script และใส่ URL ถูกต้องหรือยัง เพราะออเดอร์ถูกเก็บใน localStorage ของเบราว์เซอร์ที่สมัคร ไม่ใช่เบราว์เซอร์ของ Admin</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- STEP 5: IMAGES -->
+  <div class="section" id="step5">
+    <div class="sec-head">
+      <div class="sec-num">5</div>
+      <div class="sec-title">เพิ่มรูปภาพ</div>
+    </div>
+
+    <h3>QR PromptPay</h3>
+    <ol class="steps-list">
+      <li>Save รูป QR PromptPay จริงของคุณเป็น <code>qr-promptpay.png</code></li>
+      <li>วางไว้ในโฟลเดอร์เดียวกับ index.html</li>
+      <li>เปิด <code>index.html</code> ค้นหา <code>qr-promptpay.png</code></li>
+      <li>ลบ SVG ปลอมออก แล้ว uncomment บรรทัด <code>&lt;img src="qr-promptpay.png"&gt;</code></li>
+    </ol>
+
+    <div class="img-hint">
+      💡 <strong>วิธีสร้าง QR PromptPay:</strong> เปิด app ธนาคาร → รับเงิน → QR พร้อมเพย์ → screenshot หรือ save รูป
+    </div>
+
+    <h3>รูปผู้สอน</h3>
+    <ol class="steps-list">
+      <li>เตรียมรูปหน้าตรงของแต่ละคน ขนาดแนะนำ: อย่างน้อย 300×300 px</li>
+      <li>บันทึกเป็น <code>photo-bio.jpg</code>, <code>photo-chem.jpg</code>, <code>photo-com.jpg</code></li>
+      <li>วางในโฟลเดอร์เดียวกับ index.html</li>
+      <li>เปิด <code>index.html</code> หา section Instructors แล้วเพิ่ม:<br/>
+        <pre>&lt;<span class="kw">img</span> <span class="hl">src</span>=<span class="st">"photo-bio.jpg"</span> alt=<span class="st">"พี่พร้อม"</span>
+  style=<span class="st">"width:80px;height:80px;border-radius:50%;object-fit:cover;margin-bottom:12px"</span>&gt;</pre>
+      </li>
+    </ol>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- STEP 6: CUSTOM DOMAIN -->
+  <div class="section" id="step6">
+    <div class="sec-head">
+      <div class="sec-num">6</div>
+      <div class="sec-title">Custom Domain (ถ้ามี)</div>
+    </div>
+
+    <p>ถ้าต้องการ URL แบบ <code>ineedposn.com</code> แทนที่จะเป็น <code>ineedposn.netlify.app</code></p>
+
+    <ol class="steps-list">
+      <li>ซื้อ domain จาก <strong>Namecheap</strong> หรือ <strong>domains.google.com</strong> ราคาประมาณ <strong>฿300-500/ปี</strong> สำหรับ .com</li>
+      <li>ใน Netlify → Site configuration → Domain management → <strong>Add custom domain</strong></li>
+      <li>กรอก domain ที่ซื้อมา เช่น <code>ineedposn.com</code></li>
+      <li>ทำตามขั้นตอน DNS verification ที่ Netlify บอก</li>
+      <li>Netlify จะให้ SSL certificate (HTTPS) ฟรีอัตโนมัติ</li>
+    </ol>
+
+    <div class="note">💡 ยังไม่จำเป็นต้องมี custom domain ก็ได้ ใช้ <code>ineedposn.netlify.app</code> ไปก่อนได้เลย</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- FAQ -->
+  <div class="section" id="faq">
+    <div class="sec-head">
+      <div class="sec-num">❓</div>
+      <div class="sec-title">คำถามที่พบบ่อย</div>
+    </div>
+
+    <h3>ทำไม Admin ไม่เห็นออเดอร์?</h3>
+    <p>เพราะ localStorage เก็บข้อมูลในเบราว์เซอร์เดียว ต้องตั้งค่า Google Apps Script ให้เสร็จก่อน แล้วแก้ SCRIPT_URL ในทั้ง index.html และ admin.html จากนั้น admin.html จะดึงข้อมูลจาก Google Sheet ได้</p>
+
+    <h3>ข้อมูลนักเรียนอยู่ที่ไหน?</h3>
+    <p>ปัจจุบัน: localStorage ของแต่ละเบราว์เซอร์ — เหมาะสำหรับ test และเริ่มต้น<br/>
+    ระยะยาว: เพิ่มระบบ sync กับ Google Sheet ผ่าน Apps Script</p>
+
+    <h3>Netlify ฟรีมีข้อจำกัดอะไรบ้าง?</h3>
+    <p>Netlify Free: Bandwidth 100GB/เดือน, Build minutes 300 min/เดือน — เพียงพอมากสำหรับเว็บ HTML static ขนาดนี้ ไม่ต้องกังวลเรื่องค่าใช้จ่าย</p>
+
+    <h3>เพิ่มวิดีโอ YouTube อย่างไร?</h3>
+    <p>เปิด Admin → tab เนื้อหาคอร์ส → เลือกวิชา → กด "+ บทเรียน" → ใส่ YouTube Video ID (11 ตัวอักษรหลัง <code>?v=</code> ใน URL)</p>
+
+    <h3>นักเรียนสมัครแล้วเข้าเรียนได้ทันทีไหม?</h3>
+    <p>ไม่ได้ครับ ต้องรอ Admin อนุมัติก่อน Admin เปิด admin.html → tab ออเดอร์ → ดูสลิป → กด ✓ อนุมัติ → บัญชีนักเรียนจะเปลี่ยนสถานะเป็น approved → เข้าเรียนได้</p>
+  </div>
+
+  <div class="final-note">
+    <div class="fn-title">I<span>Need</span>POSN · ปีการศึกษา 2568</div>
+    <div class="fn-desc">สร้างโดย Claude AI · Deploy บน Netlify ฟรี<br/>Google Apps Script backend · YouTube Embed<br/><br/>ถ้าติดปัญหา กลับมาถาม Claude ได้เลยครับ 👋</div>
+  </div>
+
+</div>
+</body>
+</html>
