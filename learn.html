@@ -358,12 +358,14 @@ function saveSession(userId,token){
 function getSession(){return JSON.parse(localStorage.getItem('inp_sess')||'null');}
 function clearSession(){localStorage.removeItem('inp_sess');}
 
-function checkSession(){
-  // Returns user object if valid, null if invalid/kicked
-  const sess=getSession();
+async function checkSession(){
+  const sess = getSession();
   if(!sess) return null;
-  const user=getUsers().find(u=>u.id===sess.userId);
-  if(!user||user.activeSessionToken!==sess.token) return null;
+
+  const users = await getUsers();
+  const user = users.find(u => u.id === sess.userId);
+
+  if(!user || user.activeSessionToken !== sess.token) return null;
   return user;
 }
 
@@ -371,17 +373,17 @@ function checkSession(){
 let sessInterval=null;
 function startSessionWatch(){
   clearInterval(sessInterval);
-  sessInterval=setInterval(()=>{
-    const u=checkSession();
-    if(!u&&APP.currentUser){
+  sessInterval = setInterval(async ()=>{
+    const u = await checkSession();
+    if(!u && APP.currentUser){
       clearInterval(sessInterval);
       showKicked();
     }
   },20000);
 }
-window.addEventListener('focus',()=>{
+window.addEventListener('focus', async ()=>{
   if(APP.currentUser){
-    const u=checkSession();
+    const u = await checkSession();
     if(!u){showKicked();}
   }
 });
@@ -460,7 +462,7 @@ async function doLogin(){
   btn.classList.add('loading');
   setTimeout(()=>{
     btn.classList.remove('loading');
-    const users=getUsers();
+    const users = await getUsers();
     const user=users.find(u=>u.username.toLowerCase()===username.toLowerCase()||u.email.toLowerCase()===username.toLowerCase());
 
     if(!user){showLoginErr('ไม่พบบัญชีนี้ในระบบ กรุณาติดต่อทีมงาน');return;}
@@ -581,23 +583,24 @@ function renderCourseCard(user){
 // ════════════════════════════════════
 // COURSE PLAYER
 // ════════════════════════════════════
-function enterCourse(){
-  const user=checkSession();
+async function enterCourse(){
+  const user = await checkSession();
   if(!user){showKicked();return;}
-  APP.currentUser=user;
-  APP.currentCourse=getContent()[user.courseKey]||{videos:[],materials:[]};
+
+  APP.currentUser = user;
+  APP.currentCourse = getContent()[user.courseKey] || {videos:[],materials:[]};
   showView('v-course');
 
-  const cm=COURSE_META[user.courseKey]||{};
-  document.getElementById('sidebarTitle').textContent=cm.name||'คอร์ส';
+  const cm = COURSE_META[user.courseKey] || {};
+  document.getElementById('sidebarTitle').textContent = cm.name || 'คอร์ส';
   document.documentElement.style.setProperty('--accent',cm.accent||'var(--bio)');
 
   renderVideoList();
 
-  // Auto-resume last video
-  const lastId=user.lastVideoId;
-  const videos=APP.currentCourse.videos;
-  if(lastId&&videos.find(v=>v.id===lastId)){
+  const lastId = user.lastVideoId;
+  const videos = APP.currentCourse.videos;
+
+  if(lastId && videos.find(v=>v.id===lastId)){
     playVideo(lastId);
   } else if(videos.length>0){
     playVideo(videos[0].id);
@@ -708,32 +711,36 @@ function playVideo(videoId){
   document.getElementById('sidebarOverlay').classList.remove('show');
 }
 
-function toggleWatched(){
-  const user=checkSession();
+async function toggleWatched(){
+  const user = await checkSession();
   if(!user){showKicked();return;}
 
-  const videoId=APP.currentVideoId;
+  const videoId = APP.currentVideoId;
   if(!videoId) return;
 
-  const allUsers=getUsers();
-  const idx=allUsers.findIndex(u=>u.id===user.id);
+  const allUsers = await getUsers();
+  const idx = allUsers.findIndex(u=>u.id===user.id);
   if(idx<0) return;
 
-  let watched=allUsers[idx].watchedVideos||[];
+  let watched = allUsers[idx].watchedVideos || [];
+
   if(watched.includes(videoId)){
-    watched=watched.filter(id=>id!==videoId);
+    watched = watched.filter(id=>id!==videoId);
     showToast('ยกเลิกเครื่องหมาย');
   } else {
     watched.push(videoId);
     showToast('✅ บันทึกแล้ว!','g');
   }
-  allUsers[idx].watchedVideos=watched;
-  saveUsers(allUsers);
-  APP.currentUser=allUsers[idx];
 
-  // Re-render list + info
+  allUsers[idx].watchedVideos = watched;
+
+  // ❗ ตรงนี้ยังไม่ sync Google Sheet (ต้องทำเพิ่ม)
+  saveUsers(allUsers);
+
+  APP.currentUser = allUsers[idx];
+
   renderVideoList();
-  playVideo(videoId); // refresh UI
+  playVideo(videoId);
 }
 
 // ════════════════════════════════════
