@@ -336,7 +336,11 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',appl
 // ════════════════════════════════════
 // DATA ACCESS
 // ════════════════════════════════════
-function getUsers(){return JSON.parse(localStorage.getItem('inp_users')||'[]');}
+async function getUsers(){
+  const res = await fetch("https://script.google.com/macros/s/AKfycbwUH2kNYL4gb6aDosycckfbwn5Fh6ajP4RVLGnlx6ozUx28GbIJ8eASMELZj8qbAF4c/exec?action=get_users");
+  const data = await res.json();
+  return data.users || [];
+}
 function saveUsers(u){localStorage.setItem('inp_users',JSON.stringify(u));}
 function getContent(){
   const def={bio:{videos:[],materials:[]},chem:{videos:[],materials:[]},com:{videos:[],materials:[]}};
