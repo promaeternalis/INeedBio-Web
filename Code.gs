@@ -21,6 +21,7 @@ function doPost(e) {
     if (body.action === 'create_order')  return ตอบกลับ(บันทึกออเดอร์(body.order));
     if (body.action === 'update_status') return ตอบกลับ(อัปเดตสถานะออเดอร์(body.orderId, body.status));
     if (body.action === 'create_user')   return ตอบกลับ(บันทึกบัญชีผู้เรียน(body.user));
+    if (body.action === 'update_user')   return ตอบกลับ(อัปเดตผู้เรียน(body.user));
     return ตอบกลับ({ ok: false, error: 'ไม่รู้จัก action' });
   } catch (err) {
     return ตอบกลับ({ ok: false, error: err.message });
@@ -125,13 +126,22 @@ function บันทึกออเดอร์(o) {
 }
 
 /* ── บันทึกบัญชีผู้เรียนใหม่ ── */
-function บันทึกบัญชีผู้เรียน(u) {
-  const sheet = เปิดชีทบัญชี();
-  sheet.appendRow([
-    u.id||'', u.username||'', u.name||'', u.nick||'',
-    u.email||'', u.courseKey||'', 'รอการอนุมัติ',
-    u.orderId||'', new Date(u.createdAt||new Date()), ''
-  ]);
+sheet.appendRow([
+  u.id||'', 
+  u.username||'', 
+  u.name||'', 
+  u.nick||'',
+  u.email||'', 
+  u.courseKey||'', 
+  'รอการอนุมัติ',
+  u.orderId||'', 
+  new Date(u.createdAt||new Date()), 
+  '',
+
+  // 🔥 เพิ่ม
+  u.password || '',
+  ''
+]);
   const r = sheet.getLastRow();
   sheet.getRange(r,9).setNumberFormat('dd/mm/yyyy HH:mm');
   sheet.getRange(r,7).setBackground('#2a1f00').setFontColor('#ff9f0a').setFontWeight('bold').setHorizontalAlignment('center');
@@ -175,16 +185,22 @@ function ดึงออเดอร์ทั้งหมด() {
 
 /* ── ดึงบัญชีผู้เรียนทั้งหมด ── */
 function ดึงบัญชีทั้งหมด() {
-  const sheet = เปิดชีทบัญชี();
-  const data  = sheet.getDataRange().getValues();
-  if (data.length<=1) return { ok:true, users:[] };
-  const users = data.slice(1).map(r => ({
-    id:String(r[0]), username:String(r[1]), name:String(r[2]), nick:String(r[3]),
-    email:String(r[4]), courseKey:String(r[5]), status:String(r[6]),
-    orderId:String(r[7]),
-    createdAt:r[8] instanceof Date?r[8].toISOString():String(r[8]),
-    approvedAt:r[9] instanceof Date?r[9].toISOString():String(r[9])
-  })).reverse();
+const users = data.slice(1).map(r => ({
+  id:String(r[0]),
+  username:String(r[1]),
+  name:String(r[2]),
+  nick:String(r[3]),
+  email:String(r[4]),
+  courseKey:String(r[5]),
+  status:String(r[6]),
+  orderId:String(r[7]),
+  createdAt:r[8] instanceof Date ? r[8].toISOString() : String(r[8]),
+  approvedAt:r[9] instanceof Date ? r[9].toISOString() : String(r[9]),
+
+  // 🔥 เพิ่ม 2 ตัวนี้
+  password: String(r[10] || ''),
+  activeSessionToken: String(r[11] || '')
+})).reverse();
   return { ok:true, users };
 }
 
@@ -204,4 +220,32 @@ function ทดสอบระบบ() {
     Logger.log('❌ ผิดพลาด: ' + e.message);
     Logger.log('👉 ตรวจสอบว่าใส่ SS_ID ถูกต้องหรือยัง');
   }
+}
+function อัปเดตผู้เรียน(u) {
+  const sheet = เปิดชีทบัญชี();
+  const data = sheet.getDataRange().getValues();
+
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0]) === String(u.id)) {
+
+      // อัปเดตข้อมูลพื้นฐาน
+      sheet.getRange(i+1,2).setValue(u.username || '');
+      sheet.getRange(i+1,3).setValue(u.name || '');
+      sheet.getRange(i+1,4).setValue(u.nick || '');
+      sheet.getRange(i+1,5).setValue(u.email || '');
+      sheet.getRange(i+1,6).setValue(u.courseKey || '');
+
+      // 👉 ตรงนี้คือของใหม่ที่คุณต้องใช้
+      // เก็บ token / progress / watched
+      sheet.getRange(i+1,11).setValue(JSON.stringify({
+        activeSessionToken: u.activeSessionToken || '',
+        lastVideoId: u.lastVideoId || '',
+        watchedVideos: u.watchedVideos || []
+      }));
+
+      return { ok:true };
+    }
+  }
+
+  return { ok:false, error:'ไม่พบ user' };
 }
